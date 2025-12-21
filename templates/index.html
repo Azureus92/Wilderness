@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+    <head>
+        <head>
+            <meta charset="utf-8">
+            <title></title>
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <script type="text/javascript" src="{{ url_for('static', filename='stuquery.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='stuquery.hexmap.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script>
+            <link rel="stylesheet" href="{{ url_for('static', filename='stuquery.hexmap.css') }}">
+            <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+        </head>
+    </head>
+    <body>
+        
+        <figure class="ex-9">
+            <input type="button" id="zoomout" class="button" value="Zoom out">
+            <input type="button" id="zoomin" class="button" value="Zoom in">
+            <div id="message-6"></div>
+            <div id="hexmap-9">
+            <div class="compass compass-n">N</div>
+            <div class="compass compass-e">E</div>
+            <div class="compass compass-w">W</div>
+            <div class="compass compass-s">S</div>
+            <div id="hexes">
+                
+            </div>
+        </div>
+        </figure>
+    </body>
+</html>
