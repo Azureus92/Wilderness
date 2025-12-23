@@ -1,6 +1,12 @@
 from PIL import Image, ImageOps
 import math
 
+import os
+import glob
+files = glob.glob('/hexes/*')
+for f in files:
+    os.remove(f)
+
 res = 20
 
 # s_hex = Image.open('single_hex.png').convert('RGBA')
@@ -62,7 +68,7 @@ for ptx in range(hc_width):
 
         tmap = tmap.crop((lm, um, rm, dm))
 
-        tmap.save('result' + str(ptx) + '_' + str(pty) + '.png')
+        tmap.save('hexes/' + str(ptx) + '_' + str(pty) + '.png')
         cursor_y = (cursor_y + h) % wmap.height
 
     cursor_x = (cursor_x + w) % wmap.width

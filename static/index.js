@@ -29,7 +29,7 @@ S(document).ready(function(){
 	// Define the content of each hex
 	hexmap.setContent(function(id,hex){
 
-		str = '<div class="id"><img class="hex-image" draggable=false src="static/images/result' + hex.n + '.png" alt='+hex.n+' width=112 height=96></div>';
+		str = '<div class="id"><img class="hex-image" draggable=false src="static/images/hexes/' + hex.n + '.png" alt='+hex.n+' width=112 height=96></div>';
 		
 		// Build the circular token that sits on a hex
 		// str += '<div class="id">'+hex.n+'</div>';
