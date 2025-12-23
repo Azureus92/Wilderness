@@ -57,7 +57,6 @@
 		this.tag = el.tagName.toLowerCase();
 		
 		if(this.container.length!=1){
-			console.log("Can't find a unique element to draw into (#"+id+")");
 			return {};
 		}
 
@@ -153,7 +152,6 @@
 		this.getBottom = function(r,q){
 			var dy = this.hex.tall*0.5;
 			var y = (r - this.r.min)*this.hex.tall;
-//if(this.container.attr('id')=="hexmap-9") console.log(this.container,r,this.r.min,y,q,Math.abs(q)%2,this.shift)
 			if(this.type=="pointy"){
 				y *= 0.75;
 			}else if(this.type=="flat"){
@@ -249,7 +247,6 @@
 		}
 
 		this.hex = {'wide': this.hexes[0].el[0].clientWidth,'tall':this.hexes[0].el[0].clientHeight};
-		console.log(this.hexes[0].el[0]);
 
 		// We want sizes to be integer multiples of 4 to avoid CSS leaving gaps
 		if(this.hex.wide%4!=0) this.hex.wide = Math.round(this.hex.wide/4)*4;
@@ -264,16 +261,14 @@
 		}
 
 		if(this.type=="flat"){
-			console.log(this.hex.wide);
 			this.wide = ((maxq-minq+1)*0.75 + 0.25)*this.hex.wide;
 			this.tall = ((maxr-minr) + 1)*this.hex.tall;
-console.log(this.wide,this.wide/this.hex.wide,maxq,minq,this.hex.wide)
 		}else{
 			this.wide = (maxq-minq + 1)*this.hex.wide;
 			this.tall = (maxr-minr + 1)*this.hex.tall*0.75 + this.hex.tall*0.25;
 		}
 		
-		this.container.css({'width':this.wide+'px','height':this.tall.toFixed(1)+'px'}).find('.hexmap').css({'width':this.wide+'px','height':this.tall.toFixed(1)+'px'});
+		// this.container.css({'width':'50%','height':'50%'}).find('.hexmap').css({'width':'50%','height':'50%'});
 		return this;
 	}
 
@@ -362,27 +357,22 @@ console.log(this.wide,this.wide/this.hex.wide,maxq,minq,this.hex.wide)
 	
 	// Function to resize our hex grid based on the DOM container
 	HexMap.prototype.resize = function(){
-		this.container.css({'width':'','height':''})
+		// this.container.css({'width':'','height':''})
 		var parent = this.container.parent();
 		var padding = paddingWidth(this.container[0]);
 		if(this.container[0].offsetWidth < this.wide + padding){
 			w = this.container[0].offsetWidth - padding;
 			scale = Math.min(1,w/this.wide);
-			this.container.find('.hexmap').css({'height':(this.tall*scale).toFixed(1)+'px','transform':'scale('+(scale).toFixed(4)+')','transform-origin':'center'});
+			this.container.find('.hexmap').css({'height':'100%', 'width':'100%','transform':'scale('+(scale).toFixed(4)+')','transform-origin':'bottom left'});
 		}else{
 
-		console.log(this.wide)
-		console.log(this.container)
-		this.container.css({'width':this.wide+'px','height':this.tall+'px'}).find('.hexmap').css({'width':this.wide+'px','height':this.tall+'px','transform':'scale(1)'});
+			// this.container.css({'width':this.wide+'px','height':this.tall+'px'}).find('.hexmap').css({'width':this.wide+'px','height':this.tall+'px','transform':'scale(1)'});
 		}
 		this.container.find('.hexmapinner').css({'transform':'scale('+this.zoom.toFixed(4)+')'});
 		return this;
 	}
 
 	// Attach a handler to an event for the Graph object in a style similar to that used by jQuery
-	//   .on(eventType[,eventData],handler(eventObject));
-	//   .on("resize",function(e){ console.log(e); });
-	//   .on("resize",{me:this},function(e){ console.log(e.data.me); });
 	HexMap.prototype.on = function(ev,e,fn){
 		if(typeof ev!="string") return this;
 		if(typeof fn=="undefined"){ fn = e; e = {}; }
