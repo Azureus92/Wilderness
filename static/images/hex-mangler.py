@@ -3,7 +3,7 @@ import math
 
 import os
 import glob
-files = glob.glob('/hexes/*')
+files = glob.glob('./hexes/*')
 for f in files:
     os.remove(f)
 

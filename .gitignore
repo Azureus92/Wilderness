@@ -1,3 +1,4 @@
 static/images/hexes/*
 venv/*
 __pycache__/*
+test.db

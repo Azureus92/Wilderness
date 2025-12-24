@@ -1,4 +1,20 @@
 S(document).ready(function(){
+  hex_details = [];
+  for (i = 0; i < 20; i++) {
+    temp = []
+    for (j = 0; j < 25; j++) {
+      temp.push(JSON.parse(`
+        {
+          "name": "Hex ` + (20 * j + i + 1) + `",
+          "type": "` + i + `",
+          "description": "This is hex ` + i + `, a hex in Tasmania.",
+          "population": "` + (i * 1000) + `"
+        }`
+      ))
+    }
+    hex_details.push(temp);
+  }
+
 	hexstr = `<code>
 				{
 					"layout":"odd-q",
@@ -7,7 +23,7 @@ S(document).ready(function(){
 
 	for (i = 0; i < 20; i++) {
 		for (j = 0; j < 25; j++) {
-			hexstr += `"` + i + `_` + j + `":{"n":"` + i + `_` + j + `","q":`+ (i - 10) +`,"r":`+ (12 - j) +`,"label":"gamer","type":"horizontal"}`
+			hexstr += `"` + i + `_` + j + `":{"n":"` + i + `_` + j + `","q":`+ (i - 10) +`,"r":`+ (12 - j) +`,"alt":"` + i + `_` + j + `","type":"horizontal"}`
 			if (i != 19 || j != 24) {
 				hexstr += `, `
 			}
@@ -32,42 +48,21 @@ S(document).ready(function(){
 		str = '<div class="id"><img class="hex-image" draggable=false src="static/images/hexes/' + hex.n + '.png" alt='+hex.n+' width=112 height=96></div>';
 		
 		// Build the circular token that sits on a hex
-		// str += '<div class="id">'+hex.n+'</div>';
-		// str += '<div class="name">'+hex.label+'</div>';
-
+		
 		return str;
 	})
-
-	// hexmap.on('click',function(e){
-  //   // console.log(e)
-  //   // if (!e.ctrlKey) {
-  //   S('#message-6').html('You have clicked hex '+e.i+' ('+e.hex.id+')')
-  //   // }
-	// }).on('mouseover',function(e){
-
-	// 	S('#message-6').html('You have hovered over hex '+e.i+' ('+e.hex.id+')')
-
-	// }).on('mouseout',function(e){
-
-	// 	S('#message-6').html('You have left hex '+e.i+' ('+e.hex.id+')')
-
-	// }).on('focus',function(e){
-
-	// 	S('#message-6').html('You have focussed on hex '+e.i+' ('+e.hex.id+')')
-
-	// });
 	
 	// Set the CSS class of each hex to be the hex type
 	hexmap.setClass(function(id,hex){
 		return hex.type;
 	});
   
+  // Zoom functionality
   function zoom(zoomincrement) {
     S.hexmap('hexmap-9').setZoom(zoomincrement);
   }
   
   var curZoom = 1
-
   document.getElementById('zoomout').addEventListener('click', function() {
     curZoom /= 2;
     zoom(curZoom);
@@ -76,7 +71,26 @@ S(document).ready(function(){
     curZoom *= 2;
     zoom(curZoom);
   });
+
+  var focused_hex = null
+  function GetFocusedHex() {
+    if (focused_hex != null) {
+      id = focused_hex.alt.split('_');
+      hex_info = hex_details[parseInt(id[0])][parseInt(id[1])];
+      return hex_info
+    } else return null;
+  }
+
+  function DisplayFocusedHexInfo() {
+    hex_info = GetFocusedHex();
+    document.getElementById('rightsidebar').style.display = "block";
+    S("#hex-name").html("Name: " + hex_info.name);
+    S("#hex-type").html("Type: " + hex_info.type);
+    S("#hex-desc").html("Description: " + hex_info.description);
+    S("#hex-pop").html("Population: " + hex_info.population);
+  }
   
+  // Drag functionality:
   var _startX = 0;
   var _startY = 0;
   var _offsetX = 0;           
@@ -84,13 +98,6 @@ S(document).ready(function(){
   var _dragElement;
   document.onmousedown = OnMouseDown;
   document.onmouseup = OnMouseUp;
-
-  var focused_hex = null
-
-  function DisplayHexInfo(hex) {
-    S("#message-6").html("You have selected Hex "+hex.alt);
-  }
-
   function OnMouseDown(event){
     if (event.ctrlKey == true) {
       document.onmousemove = OnMouseMove;
@@ -100,7 +107,7 @@ S(document).ready(function(){
       _offsetY = document.getElementById('hexes').offsetTop;
       _dragElement = document.getElementById('hexes');
     } else if (typeof event.target.className !== "undefined" && 
-        (event.target.className.includes("hex") || event.target.className.includes("hex-image"))) {
+        (event.target.className.includes("hex-image"))) {
       if (focused_hex != null) {
         focused_hex.className = focused_hex.className.split(" ")[0];
         focused_hex = null;
@@ -110,9 +117,9 @@ S(document).ready(function(){
       } else {
         event.target.className += " focusedhex";
         focused_hex = event.target;
-        DisplayHexInfo(focused_hex);
+        DisplayFocusedHexInfo();
       }
-    }
+    } 
   }
 
   function OnMouseMove(event){
@@ -124,4 +131,17 @@ S(document).ready(function(){
     document.onmousemove = null;
     _dragElement=null;
   }
+
+  // Detail Modding:
+  document.getElementById('hex-mod').addEventListener('click', function() {
+    document.getElementById('modifier').style.display = 'block';
+  });
+  document.getElementById('hex-mod-confirm').addEventListener('click', function() {
+    hex_info = GetFocusedHex();
+    hex_info.description = document.getElementById('hex-desc-new').value;
+    DisplayFocusedHexInfo();
+    document.getElementById('modifier').style.display = 'none';
+  });
+
+
 });
