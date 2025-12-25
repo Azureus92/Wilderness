@@ -2,10 +2,10 @@ body {
 	margin:0;
 }
 #leftsidebar {
-	width:10%;
+	width:5%;
 	z-index: 1000;
 	position: absolute;
-	height:20%;
+	height:10%;
 	background-color: #ffffff;
 	opacity: 0.5;
 }
