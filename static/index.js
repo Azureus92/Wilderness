@@ -1,18 +1,38 @@
-S(document).ready(function(){
-  hex_details = [];
-  for (i = 0; i < 20; i++) {
-    temp = []
-    for (j = 0; j < 25; j++) {
-      temp.push(JSON.parse(`
-        {
-          "name": "Hex ` + (20 * j + i + 1) + `",
-          "type": "` + i + `",
-          "description": "This is hex ` + i + `, a hex in Tasmania.",
-          "population": "` + (i * 1000) + `"
-        }`
-      ))
+S(document).ready(async function(){
+  
+  var hexes = [];
+  await fetch("/all-hexes")
+  .then((response) => {
+      if (!response.ok) {
+          throw new Error(`HTTP error ${response.status}`);
+      }
+      return response.json();
+  })
+  .then((data) => {
+      hexes = data;
+  })
+
+  max_x = Math.max(...hexes.map(o => o.x));
+  min_x = Math.min(...hexes.map(o => o.x));
+  max_y = Math.max(...hexes.map(o => o.y));
+  min_y = Math.min(...hexes.map(o => o.y));
+  
+  console.log(max_x)
+  console.log(min_x)
+  console.log(max_y)
+  console.log(min_y)
+  hex_details = []
+  for (i = min_x; i <= max_x; i++) {
+    var tmp = []
+    for (j = min_y; j <= max_y; j++) {
+      tmp.push({
+        "name": "empty",
+        "type": "none",
+        "population": "0",
+        "description": "fuck all here"
+      });
     }
-    hex_details.push(temp);
+    hex_details.push(tmp);
   }
 
 	hexstr = `<code>
@@ -21,13 +41,15 @@ S(document).ready(function(){
                     "hexes": {
 			`
 
-	for (i = 0; i < 20; i++) {
-		for (j = 0; j < 25; j++) {
-			hexstr += `"` + i + `_` + j + `":{"n":"` + i + `_` + j + `","q":`+ (i - 10) +`,"r":`+ (12 - j) +`,"alt":"` + i + `_` + j + `","type":"horizontal"}`
-			if (i != 19 || j != 24) {
-				hexstr += `, `
-			}
-		}
+	for (i = 0; i < hexes.length; i++) {
+    console.log(hexes[i].y)
+    hex_details[hexes[i].x - min_x][hexes[i].y - min_y].description = hexes[i].description;
+    hex_details[hexes[i].x - min_x][hexes[i].y - min_y].name = hexes[i].x + '_' + hexes[i].y;
+    
+    hexstr += `"` + hexes[i].x + `_` + hexes[i].y + `":{"n":"` + hexes[i].id + `","q":`+ hexes[i].x +`,"r":`+ (24 - hexes[i].y) +`,"alt":"` + `` + `","type":"horizontal"}`
+    if (i != hexes.length - 1) {
+      hexstr += `, `
+    }
 	}
 	
 // "A":{"n":"4_5","q":1,"r":4,"label":"Horn<br>sey","type":"horizontal"},
@@ -42,10 +64,11 @@ S(document).ready(function(){
 	var hexmap = S.hexmap('hexmap-9');
 	hexmap.positionHexes().resize();
 
+  
 	// Define the content of each hex
 	hexmap.setContent(function(id,hex){
 
-		str = '<div class="id"><img class="hex-image" draggable=false src="static/images/hexes/' + hex.n + '.png" alt='+hex.n+' width=112 height=96></div>';
+		str = '<div class="id"><img class="hex-image" draggable=false src="static/images/hexes/' + hex.n + '.png" alt='+id+' width=112 height=96></div>';
 		
 		// Build the circular token that sits on a hex
 		
@@ -76,7 +99,7 @@ S(document).ready(function(){
   function GetFocusedHex() {
     if (focused_hex != null) {
       id = focused_hex.alt.split('_');
-      hex_info = hex_details[parseInt(id[0])][parseInt(id[1])];
+      hex_info = hex_details[parseInt(id[0]) - min_x][parseInt(id[1]) - min_y];
       return hex_info
     } else return null;
   }

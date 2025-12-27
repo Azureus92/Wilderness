@@ -69,7 +69,7 @@ def mangle(i, hc_width, hc_height, conn, cur):
             tmap.putalpha(mask)
 
             tmap = tmap.crop((lm, um, rm, dm)) 
-            cur.execute("INSERT INTO hexes (id, x, y, description) VALUES (?, ?, ?, ?)", (ids[i], ptx, pty, "A hex in Tasmania"))
+            cur.execute("INSERT INTO hexes (id, x, y) VALUES (?, ?, ?)", (ids[i], ptx, pty))
             conn.commit()
 
             tmap.save('static/images/hexes/' + str(ids[i]) + '.png')
