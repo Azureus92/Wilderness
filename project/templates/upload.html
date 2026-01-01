@@ -1,0 +1,29 @@
+<!doctype html>
+<title>Upload new File</title>
+<h1>Upload new File</h1>
+<form method=post enctype=multipart/form-data>
+<input type=file name=file>
+<br>
+<input type="number" name="width">
+<label for="width">Width in Hexes:</label>
+<br>
+<input type="number" name="height">
+<label for="height">Height in Hexes:</label>
+<br>
+<input type="radio" id="regenC1" name="regen" value="yes" checked />
+<label for="regenC1">Yes</label>
+
+<input type="radio" id="regenC2" name="regen" value="no" />
+<label for="regenC2">No</label>
+<br>
+<input type=submit value=Upload>
+</form>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    <ul class=flashes>
+    {% for category, message in messages %}
+    <li class="{{ category }}">{{ message }}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+{% endwith %}

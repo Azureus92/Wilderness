@@ -1,13 +1,16 @@
-from PIL import Image, ImageOps
-import math
+from PIL import Image
 import os
 import glob
 import random
+from . import db, HEX_FOLDER
+from .models import Hex
 
-def mangle(i, hc_width, hc_height, conn, cur):
-    cur.execute("DELETE FROM hexes")
-    conn.commit()
-    files = glob.glob('./static/images/hexes/*')
+def mangle(i, hc_width, hc_height, remake):
+    if (remake == 'yes'):
+        Hex.query.delete()
+        db.session.commit()
+    
+    files = glob.glob(HEX_FOLDER + '/*')
     for f in files:
         os.remove(f)
 
@@ -69,10 +72,19 @@ def mangle(i, hc_width, hc_height, conn, cur):
             tmap.putalpha(mask)
 
             tmap = tmap.crop((lm, um, rm, dm)) 
-            cur.execute("INSERT INTO hexes (id, x, y) VALUES (?, ?, ?)", (ids[i], ptx, pty))
-            conn.commit()
 
-            tmap.save('static/images/hexes/' + str(ids[i]) + '.png')
+            exists = Hex.query.filter_by(id=ids[i]).first()
+            if not exists:
+                th = Hex(
+                    id=ids[i],
+                    x=ptx,
+                    y=pty,
+                    known_by='Oceanborn'
+                )
+                db.session.add(th)
+                db.session.commit()
+
+            tmap.save(HEX_FOLDER + '/' + str(ids[i]) + '.png')
             i+=1
             cursor_y = (cursor_y + h) % wmap.height
 

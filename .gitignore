@@ -1,4 +1,5 @@
-static/images/hexes/*
+project/static/images/hexes/*
 venv/*
-__pycache__/*
-test.db
+__pycache__/
+project/test.db
+instance/
