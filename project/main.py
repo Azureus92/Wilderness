@@ -3,9 +3,9 @@ from flask import render_template
 from werkzeug.utils import secure_filename
 import sqlite3
 from .hex_mangler import mangle
-from flask_login import LoginManager, login_required
+from flask_login import LoginManager, login_required, current_user
 from . import UPLOAD_FOLDER, db
-from .models import Hex
+from .models import Hex, role_required, Claim
 
 main = Blueprint('main', __name__)
 
@@ -23,6 +23,7 @@ def map():
 
 @main.route('/all-hexes', methods=['GET'])
 @login_required
+@role_required('admin')
 def get_all_hexes():
     res = db.session.execute(db.select(Hex)).all()
     hexes = []
@@ -31,15 +32,35 @@ def get_all_hexes():
         hexes.append({"id": e.id, "x": e.x, "y": e.y, "description": e.description})
     return hexes
 
-@main.route('/for-person', methods=['GET'])
+@main.route('/register-hex', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def register_hex():
+    if (request.method == 'POST'):
+        player = request.form.get("player")
+        hex_id = request.form.get("hex")
+
+        db.session.add(Claim(owner=player, hex=hex_id))
+        db.session.commit()
+
+        flash("Hex Added!")
+        return redirect(request.url)
+    return render_template('register-hex.html')
+
+@main.route('/get-hexes', methods=['GET'])
 @login_required
 def get_personal_hexes():
-    user = request.args.get('user')
-    if (not user):
-        flash('No user')
-        return redirect(request.url)
-    
-    res = db.session.execute(db.select(Hex).filter_by(known_by=user)).all()
+    res = ''
+    if (current_user.role != 'admin'):
+        owned = db.session.execute(db.select(Claim).filter_by(owner=current_user.name)).all()
+        hexes = []
+        for o in owned:
+            hexes.append(o[0].hex)
+
+        res = db.session.execute(db.select(Hex).filter(Hex.id.in_(hexes))).all()
+    else:
+        res = db.session.execute(db.select(Hex)).all()
+        
     hexes = []
     for entry in res:
         e = entry[0]

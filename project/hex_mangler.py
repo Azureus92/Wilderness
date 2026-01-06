@@ -78,8 +78,7 @@ def mangle(i, hc_width, hc_height, remake):
                 th = Hex(
                     id=ids[i],
                     x=ptx,
-                    y=pty,
-                    known_by='Oceanborn'
+                    y=pty
                 )
                 db.session.add(th)
                 db.session.commit()

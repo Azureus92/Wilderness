@@ -1,18 +1,12 @@
-<!doctype html>
-<html>
-    <head>
-        <head>
-            <meta charset="utf-8">
-            <title></title>
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <script type="text/javascript" src="{{ url_for('static', filename='stuquery.js') }}"></script>
-            <script type="text/javascript" src="{{ url_for('static', filename='stuquery.hexmap.js') }}"></script>
-            <script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script>
-            <link rel="stylesheet" href="{{ url_for('static', filename='stuquery.hexmap.css') }}">
-            <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
-        </head>
-    </head>
-    <body>
+{% extends "base.html" %}
+
+{% block content %}
+<script type="text/javascript" src="{{ url_for('static', filename='stuquery.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='stuquery.hexmap.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='stuquery.hexmap.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+
         <div id="leftsidebar">
             <input type="button" id="zoomout" class="button" value="Zoom out">
             <input type="button" id="zoomin" class="button" value="Zoom in">
@@ -47,5 +41,5 @@
                 </div>
             </div>
         </div>
-    </body>
-</html>
+
+{% endblock %}

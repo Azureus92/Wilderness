@@ -1,7 +1,7 @@
 S(document).ready(async function(){
   
   var hexes = [];
-  await fetch("/all-hexes")
+  await fetch("/get-hexes")
   .then((response) => {
       if (!response.ok) {
           throw new Error(`HTTP error ${response.status}`);

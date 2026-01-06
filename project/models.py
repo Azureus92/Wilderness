@@ -23,7 +23,7 @@ def role_required(role):
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated or not current_user.has_role(role):
                 flash('Access denied. Insufficient permissions.')
-                return redirect(url_for('main.index'))
+                return redirect(url_for('auth.login'))
             return f(*args, **kwargs)
         return decorated_function
     return decorator
@@ -39,4 +39,8 @@ class Hex(db.Model):
     fauna = db.Column(db.String(1000))
     developments = db.Column(db.String(1000))
     resources = db.Column(db.String(1000))
-    known_by = db.Column(db.String(1000))
+
+class Claim(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    owner = db.Column(db.String(1000))
+    hex = db.Column(db.Integer)
