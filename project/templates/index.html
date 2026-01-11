@@ -7,39 +7,35 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='stuquery.hexmap.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 
-        <div id="leftsidebar">
-            <input type="button" id="zoomout" class="button" value="Zoom out">
-            <input type="button" id="zoomin" class="button" value="Zoom in">
+<div id="leftsidebar">
+    <input type="button" id="zoomout" class="button" value="Zoom out">
+    <input type="button" id="zoomin" class="button" value="Zoom in">
+    
+</div>
+<figure class="ex-9">
+    <div id="hexmap-9" class="mapinterface">
+        <div id="hexes">
             
         </div>
-        <figure class="ex-9">
-            
-            <!-- <div class="mapinterface comp">
-                <div class="compass compass-n">N</div>
-                <div class="compass compass-e">E</div>
-                <div class="compass compass-w">W</div>
-                <div class="compass compass-s">S</div>
-                
-            </div> -->
-            <div id="hexmap-9" class="mapinterface">
-                <div id="hexes">
-                    
-                </div>
-            </div>
-        </figure>
-        <div id="rightsidebar">
-            <div id="hex-details" class="info-display">
-                <div>WELCOME, PLAYER 1</div>
-                <div id="hex-name"></div>
-                <div id="hex-type"></div>
-                <div id="hex-desc"></div>
-                <div id="hex-pop"></div>
-                <input type="button" id="hex-mod" class="button" value="Modify Details">
-                <div id="modifier">
-                    <div>New Description: <textarea class="scrollabletextbox" id="hex-desc-new"></textarea></div>
-                    <input type="button" id="hex-mod-confirm" value="Confirm Modification">
-                </div>
-            </div>
+    </div>
+</figure>
+<div id="rightsidebar">
+    <div id="hex-details" class="info-display">
+        <div class="title">Hex Information:</div>
+        <div id="hex-name"></div>
+        <div id="hex-type"></div>
+        <div id="hex-desc"></div>
+        <div id="hex-pop"></div>
+        {% if current_user.is_authenticated and current_user.role == 'admin' %}
+        <input type="button" id="hex-mod" class="button" value="Modify Details">
+        <div id="modifier">
+            <div>New Description: <textarea class="scrollabletextbox" id="hex-desc-new"></textarea></div>
+            <input type="button" id="hex-mod-confirm" value="Confirm Modification">
         </div>
+        {% endif %}
+        <input type="button" id="close-sidebar" class="button" value="Close" style="bottom:2%">
+
+    </div>
+</div>
 
 {% endblock %}

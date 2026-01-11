@@ -1,0 +1,48 @@
+.navbar-sec {
+	position: absolute;
+	right: 3%;
+	top: 2%;
+	white-space: nowrap;
+	z-index: 20000;
+}
+
+.navbar-item {
+	padding: 1%;
+	margin: auto;
+	border: solid;
+	border-color: black; 
+	background-color: white;
+	color: black;
+}
+
+.navbar-item:hover {
+	background-color: rgb(103, 212, 103);
+	color: rgb(255, 255, 255);
+}
+
+.main-content {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	background-color: orange;
+	border-radius: 1em;
+	padding: 2em;
+	max-width: fit-content;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.title {
+	max-width: fit-content;
+	font-size: 3em;
+	margin:auto;
+}
+
+body {
+	background-image: url("images/uploads/Tassie_with_fixed_hexgrid.png");
+	background-color: #cccccc;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+}

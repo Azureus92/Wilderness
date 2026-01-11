@@ -9,31 +9,14 @@ S(document).ready(async function(){
       return response.json();
   })
   .then((data) => {
-      hexes = data;
+    console.log(data)
+    hexes = data;
   })
 
   max_x = Math.max(...hexes.map(o => o.x));
   min_x = Math.min(...hexes.map(o => o.x));
   max_y = Math.max(...hexes.map(o => o.y));
   min_y = Math.min(...hexes.map(o => o.y));
-  
-  console.log(max_x)
-  console.log(min_x)
-  console.log(max_y)
-  console.log(min_y)
-  hex_details = []
-  for (i = min_x; i <= max_x; i++) {
-    var tmp = []
-    for (j = min_y; j <= max_y; j++) {
-      tmp.push({
-        "name": "empty",
-        "type": "none",
-        "population": "0",
-        "description": "fuck all here"
-      });
-    }
-    hex_details.push(tmp);
-  }
 
 	hexstr = `<code>
 				{
@@ -42,17 +25,11 @@ S(document).ready(async function(){
 			`
 
 	for (i = 0; i < hexes.length; i++) {
-    console.log(hexes[i].y)
-    hex_details[hexes[i].x - min_x][hexes[i].y - min_y].description = hexes[i].description;
-    hex_details[hexes[i].x - min_x][hexes[i].y - min_y].name = hexes[i].x + '_' + hexes[i].y;
-    
-    hexstr += `"` + hexes[i].x + `_` + hexes[i].y + `":{"n":"` + hexes[i].id + `","q":`+ hexes[i].x +`,"r":`+ (24 - hexes[i].y) +`,"alt":"` + `` + `","type":"horizontal"}`
+    hexstr += `"` + hexes[i].id + `":{"n":"` + hexes[i].id + `","q":`+ hexes[i].x +`,"r":`+ (24 - hexes[i].y) +`,"alt":"` + `` + `","type":"horizontal"}`
     if (i != hexes.length - 1) {
       hexstr += `, `
     }
 	}
-	
-// "A":{"n":"4_5","q":1,"r":4,"label":"Horn<br>sey","type":"horizontal"},
 
 	hexstr += `    }
                 }
@@ -96,21 +73,15 @@ S(document).ready(async function(){
   });
 
   var focused_hex = null
-  function GetFocusedHex() {
-    if (focused_hex != null) {
-      id = focused_hex.alt.split('_');
-      hex_info = hex_details[parseInt(id[0]) - min_x][parseInt(id[1]) - min_y];
-      return hex_info
-    } else return null;
-  }
 
   function DisplayFocusedHexInfo() {
-    hex_info = GetFocusedHex();
+    hex_info = hexes.filter(function(entry) { return entry.id == focused_hex.alt })[0];
     document.getElementById('rightsidebar').style.display = "block";
-    S("#hex-name").html("Name: " + hex_info.name);
-    S("#hex-type").html("Type: " + hex_info.type);
-    S("#hex-desc").html("Description: " + hex_info.description);
-    S("#hex-pop").html("Population: " + hex_info.population);
+    console.log(hex_info)
+    S("#hex-name").html("Name: " + hex_info.x);
+    // S("#hex-type").html("Type: " + hex_info.type);
+    // S("#hex-desc").html("Description: " + hex_info.description);
+    // S("#hex-pop").html("Population: " + hex_info.population);
   }
   
   // Drag functionality:
@@ -156,15 +127,22 @@ S(document).ready(async function(){
   }
 
   // Detail Modding:
-  document.getElementById('hex-mod').addEventListener('click', function() {
-    document.getElementById('modifier').style.display = 'block';
+  if (document.getElementById('hex-mod') != null) {
+    document.getElementById('hex-mod').addEventListener('click', function() {
+      document.getElementById('modifier').style.display = 'block';
+    });
+    document.getElementById('hex-mod-confirm').addEventListener('click', function() {
+      hex_info = GetFocusedHex();
+      hex_info.description = document.getElementById('hex-desc-new').value;
+      DisplayFocusedHexInfo();
+      document.getElementById('modifier').style.display = 'none';
+    });
+  }
+
+  document.getElementById('close-sidebar').addEventListener('click', function() {
+    document.getElementById('rightsidebar').style.display = 'none';
   });
-  document.getElementById('hex-mod-confirm').addEventListener('click', function() {
-    hex_info = GetFocusedHex();
-    hex_info.description = document.getElementById('hex-desc-new').value;
-    DisplayFocusedHexInfo();
-    document.getElementById('modifier').style.display = 'none';
-  });
+  
 
 
 });

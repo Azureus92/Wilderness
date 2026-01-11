@@ -21,17 +21,6 @@ def allowed_file(filename):
 def map():
     return render_template('index.html')
 
-@main.route('/all-hexes', methods=['GET'])
-@login_required
-@role_required('admin')
-def get_all_hexes():
-    res = db.session.execute(db.select(Hex)).all()
-    hexes = []
-    for entry in res:
-        e = entry[0]
-        hexes.append({"id": e.id, "x": e.x, "y": e.y, "description": e.description})
-    return hexes
-
 @main.route('/register-hex', methods=['GET', 'POST'])
 @login_required
 @role_required('admin')
@@ -47,6 +36,39 @@ def register_hex():
         return redirect(request.url)
     return render_template('register-hex.html')
 
+def resolve_hexes(res):
+    m_x = 9999
+    m_y = 9999
+    hexes = []
+    for entry in res:
+        m_x = min(m_x, entry[0].x)
+        m_y = min(m_y, entry[0].y)
+
+    for entry in res:
+        e = entry[0]
+        hexes.append({
+            "id": e.id, 
+            "x": e.x - m_x, 
+            "y": e.y - m_y, 
+            "description": e.description,
+            "biome": e.biome,
+            "features": e.features,
+            "flora": e.flora,
+            "fauna": e.fauna,
+            "developments": e.developments,
+            "resources": e.resources
+        })
+    return hexes
+    
+
+@main.route('/all-hexes', methods=['GET'])
+@login_required
+@role_required('admin')
+def get_all_hexes():
+    res = db.session.execute(db.select(Hex)).all()
+    return resolve_hexes(res)
+
+
 @main.route('/get-hexes', methods=['GET'])
 @login_required
 def get_personal_hexes():
@@ -61,29 +83,36 @@ def get_personal_hexes():
     else:
         res = db.session.execute(db.select(Hex)).all()
         
-    hexes = []
-    for entry in res:
-        e = entry[0]
-        hexes.append({"id": e.id, "x": e.x, "y": e.y, "description": e.description})
-    return hexes
+    return resolve_hexes(res)
 
-@main.route('/upload-map', methods=['GET', 'POST'])
+@main.route('/upload-map', methods=['GET'])
 @login_required
+@role_required('admin')
 def upload_map():
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(UPLOAD_FOLDER + '/' + filename)
-            mangle(UPLOAD_FOLDER + '/' + filename, int(request.form['width']), int(request.form['height']), request.form['regen'])
-            return redirect(url_for('main.map'))
-        else:
-            flash('Invalid file')
-            return redirect(request.url)
     return render_template('upload.html')
+
+
+@main.route('/upload-map', methods=['POST'])
+@login_required
+@role_required('admin')
+def upload_map_post():
+    w = request.form.get("width")
+    h = request.form.get("height")
+    r = request.form.get("regen")
+    print(request.files)
+
+    if 'file' not in request.files:
+        flash('No file part')
+        return redirect(request.url)
+    file = request.files['file']
+    if file.filename == '':
+        flash('No selected file')
+        return redirect(request.url)
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(UPLOAD_FOLDER + '/' + filename)
+        mangle(UPLOAD_FOLDER + '/' + filename, int(w), int(h), r)
+        return redirect(url_for('main.map'))
+    else:
+        flash('Invalid file')
+        return redirect(request.url)

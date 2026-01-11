@@ -6,9 +6,20 @@ from . import db, HEX_FOLDER
 from .models import Hex
 
 def mangle(i, hc_width, hc_height, remake):
-    if (remake == 'yes'):
+    ids = []
+    if (remake != None):
+        print("REGENNING MAP!")
         Hex.query.delete()
         db.session.commit()
+        ids = random.sample(range(hc_width * hc_height), hc_width * hc_height)
+    else:
+        res = db.session.execute(db.select(Hex))
+        temp = []
+        for h in res:
+            temp.append(h[0])
+        temp.sort(key=lambda x: (x.x, x.y))
+        for t in temp:
+            ids.append(t.id)
     
     files = glob.glob(HEX_FOLDER + '/*')
     for f in files:
@@ -19,8 +30,6 @@ def mangle(i, hc_width, hc_height, remake):
     wmap = Image.open(i).convert('RGBA')
 
     map_pixels = wmap.load()
-
-    ids = random.sample(range(hc_width * hc_height), hc_width * hc_height)
 
     w = round(wmap.width / hc_width)
     h = round(wmap.height / (hc_height + 0.5))

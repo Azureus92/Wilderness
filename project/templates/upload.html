@@ -1,29 +1,40 @@
-<!doctype html>
-<title>Upload new File</title>
-<h1>Upload new File</h1>
-<form method=post enctype=multipart/form-data>
-<input type=file name=file>
-<br>
-<input type="number" name="width">
-<label for="width">Width in Hexes:</label>
-<br>
-<input type="number" name="height">
-<label for="height">Height in Hexes:</label>
-<br>
-<input type="radio" id="regenC1" name="regen" value="yes" checked />
-<label for="regenC1">Yes</label>
+{% extends "base.html" %}
 
-<input type="radio" id="regenC2" name="regen" value="no" />
-<label for="regenC2">No</label>
-<br>
-<input type=submit value=Upload>
-</form>
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-    <ul class=flashes>
-    {% for category, message in messages %}
-    <li class="{{ category }}">{{ message }}</li>
-    {% endfor %}
-    </ul>
-{% endif %}
-{% endwith %}
+{% block content %}
+
+<div class="main-content">
+    <h3 class="title">Upload Map</h3>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="notification is-danger">
+            {{ messages[0] }}
+        </div>
+    {% endif %}
+    {% endwith %}
+    <form method="POST" action="/upload-map" enctype=multipart/form-data>
+        <div class="field">
+            <div class="control">
+                <input class="file-cta is-large" type=file name=file accept=".png,.jpg,.jpeg" required>
+            </div>
+        </div>
+        <div class="field">
+            <div class="control">
+                <input type="number" name="width" required>
+                <label for="width">Width in Hexes:</label>
+                <input type="number" name="height" required>
+                <label for="width">Height in Hexes:</label>
+            </div>
+        </div>
+        <div class="field">
+            <label class="checkbox">
+                <input type="checkbox" name="regen">
+                Regenerate Map?
+            </label>
+        </div>
+        <button class="button is-block is-info is-large is-fullwidth">Submit:</button>
+    </form>
+</div>
+
+    
+
+{% endblock %}

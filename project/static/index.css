@@ -2,10 +2,10 @@ body {
 	margin:0;
 }
 #leftsidebar {
-	width:5%;
+	width:fit-content;
 	z-index: 1000;
 	position: absolute;
-	height:10%;
+	height:fit-content;
 	background-color: #ffffff;
 	opacity: 0.5;
 }
@@ -13,8 +13,8 @@ body {
 	width:15%;
 	z-index: 5000;
 	position: absolute;
-	right: 0%;
-	height:100%;
+	right: 2%;
+	top: 10%;
 	background-color: rgba(253, 244, 214, 1);
 	display: none;
 }
