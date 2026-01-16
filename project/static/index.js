@@ -45,7 +45,11 @@ S(document).ready(async function(){
 	// Define the content of each hex
 	hexmap.setContent(function(id,hex){
 
-		str = '<div class="id"><img class="hex-image" draggable=false src="static/images/hexes/' + hex.n + '.png" alt='+id+' width=112 height=96></div>';
+		str = `
+    <div class="id">
+      <img class="hex-image" draggable=false src="static/images/hexes/` + hex.n + `.png" alt=`+id+`>
+      <img class="hex-image blinder" draggable=false src="static/images/blinder.png" alt=`+id+` hidden>
+    </div>`;
 		
 		// Build the circular token that sits on a hex
 		
@@ -74,14 +78,27 @@ S(document).ready(async function(){
 
   var focused_hex = null
 
+  function ConditionalDisplay(check, el1) {
+    if (check != null) {
+      document.getElementById(el1).textContent = check;
+    } else {
+      document.getElementById(el1).textContent = "No Data";
+    }
+  }
+
   function DisplayFocusedHexInfo() {
     hex_info = hexes.filter(function(entry) { return entry.id == focused_hex.alt })[0];
+    console.log(focused_hex.alt)
     document.getElementById('rightsidebar').style.display = "block";
     console.log(hex_info)
-    S("#hex-name").html("Name: " + hex_info.x);
-    // S("#hex-type").html("Type: " + hex_info.type);
-    // S("#hex-desc").html("Description: " + hex_info.description);
-    // S("#hex-pop").html("Population: " + hex_info.population);
+
+    ConditionalDisplay(hex_info.biome, "hex-biome")
+    ConditionalDisplay(hex_info.features, "hex-features")
+    ConditionalDisplay(hex_info.flora, "hex-flora")
+    ConditionalDisplay(hex_info.fauna, "hex-fauna")
+    ConditionalDisplay(hex_info.resources, "hex-resources")
+    ConditionalDisplay(hex_info.developments, "hex-developments")
+    ConditionalDisplay(hex_info.description, "hex-description")
   }
   
   // Drag functionality:
@@ -128,21 +145,138 @@ S(document).ready(async function(){
 
   // Detail Modding:
   if (document.getElementById('hex-mod') != null) {
+    hex_tags = ["hex-biome", "hex-features", "hex-flora", "hex-fauna", "hex-resources", "hex-developments", "hex-description"]
     document.getElementById('hex-mod').addEventListener('click', function() {
-      document.getElementById('modifier').style.display = 'block';
+      for (const name of hex_tags) {
+        document.getElementById(name).style.display = 'none';
+        document.getElementById(name + "-i").style.display = 'block';
+        document.getElementById(name + "-i").placeholder = document.getElementById(name).textContent;
+      }
+      document.getElementById("hex-mod-confirm").style.display = 'block';
+      document.getElementById("hex-mod").style.display = 'none';
     });
-    document.getElementById('hex-mod-confirm').addEventListener('click', function() {
-      hex_info = GetFocusedHex();
-      hex_info.description = document.getElementById('hex-desc-new').value;
+    document.getElementById('hex-mod-confirm').addEventListener('click', async function() {
+      hex_info = hexes.filter(function(entry) { return entry.id == focused_hex.alt })[0];
+
+      var sendUpdate = false;
+      var upd_obj = {
+        'id': hex_info.id,
+        'biome': null,
+        'description': null,
+        'developments': null,
+        'flora': null,
+        'fauna': null,
+        'resources': null,
+        'features': null 
+      }
+      for (const name of hex_tags) {
+        document.getElementById(name + "-i").style.display = 'none';
+        document.getElementById(name).style.display = 'block';
+        if (document.getElementById(name + "-i").value != '') {
+          sendUpdate = true;
+          hex_info[name.split('-')[1]] = document.getElementById(name + "-i").value;
+          upd_obj[name.split('-')[1]] = document.getElementById(name + "-i").value;
+          document.getElementById(name + "-i").value = "";
+        }
+      }
+
+      if (sendUpdate) {
+        const rawResponse = await fetch('update-hex', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(upd_obj)
+        });
+        const content = rawResponse;
+
+        console.log(content);
+      }
+
       DisplayFocusedHexInfo();
-      document.getElementById('modifier').style.display = 'none';
+      
+      document.getElementById("hex-mod-confirm").style.display = 'none';
+      document.getElementById("hex-mod").style.display = 'block';
     });
   }
 
+  // Closing Right Sidebar
   document.getElementById('close-sidebar').addEventListener('click', function() {
     document.getElementById('rightsidebar').style.display = 'none';
   });
-  
 
+  // Specific View Overlay:
+  if (document.getElementById('open-view') != null) {
+    document.getElementById('open-view').addEventListener('click', function() {
+    document.getElementById('focus-cover').style.display = 'block';
+    });
+    document.getElementById('close-view').addEventListener('click', function() {
+      document.getElementById('focus-cover').style.display = 'none';
+    });
+  }
+
+  if (document.getElementById("alt-civ-views") != null) {
+
+    var users = [];
+    await fetch("/get-users")
+    .then((response) => {
+        if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}`);
+        }
+        return response.json();
+    })
+    .then((data) => {
+      users = data;
+    })
+    console.log(users)
+
+    var to_append = "";
+    for (const u of users) {
+      to_append += "<button class='button-opener user-selector' id='switch-to-user-" + u.id + "'>" + u.civ_name + "</button>";
+    }
+    S("#other-users").html(to_append);
+
+    claims = []
+    async function getClaims() {
+      await fetch("/get-claims")
+      .then((response) => {
+          if (!response.ok) {
+              throw new Error(`HTTP error ${response.status}`);
+          }
+          return response.json();
+      })
+      .then((data) => {
+        claims = data;
+      })
+    }
+    await getClaims();
+
+    var activePlayer = "";
+    for (const el of document.getElementsByClassName("user-selector")) {
+      el.addEventListener('click', function () {
+        activePlayer = el.textContent;
+        var ownedHexes = claims.filter(function(entry) { return entry.owner == activePlayer })
+        for (const bl of document.getElementsByClassName("blinder")) {
+          if (ownedHexes.filter(function(entry) { return entry.hex_id == bl.alt }).length != 0) {
+            bl.style.display = "none";
+          } else {
+            bl.style.display = "block";
+          }
+        }
+      })
+    }
+
+    document.getElementById("alt-civ-views").addEventListener('click', function () {
+      if (document.getElementById("other-users").style.display == 'block') {
+        document.getElementById("other-users").style.display = 'none';
+        for (const bl of document.getElementsByClassName("blinder")) {
+          bl.style.display = "none";
+        }
+      } else {
+        document.getElementById("other-users").style.display = 'block';
+      }
+    })
+  }
 
 });

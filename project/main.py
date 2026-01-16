@@ -5,7 +5,7 @@ import sqlite3
 from .hex_mangler import mangle
 from flask_login import LoginManager, login_required, current_user
 from . import UPLOAD_FOLDER, db
-from .models import Hex, role_required, Claim
+from .models import Hex, role_required, Claim, User
 
 main = Blueprint('main', __name__)
 
@@ -21,20 +21,25 @@ def allowed_file(filename):
 def map():
     return render_template('index.html')
 
-@main.route('/register-hex', methods=['GET', 'POST'])
+@main.route('/register-hex', methods=['GET'])
 @login_required
 @role_required('admin')
 def register_hex():
-    if (request.method == 'POST'):
-        player = request.form.get("player")
-        hex_id = request.form.get("hex")
-
-        db.session.add(Claim(owner=player, hex=hex_id))
-        db.session.commit()
-
-        flash("Hex Added!")
-        return redirect(request.url)
     return render_template('register-hex.html')
+
+@main.route('/register-hex', methods=['POST'])
+@login_required
+@role_required('admin')
+def register_hex_post():
+    player = request.form.get("player")
+    hex_id = request.form.get("hex")
+    
+
+    db.session.add(Claim(owner=player, hex=hex_id))
+    db.session.commit()
+
+    flash("Hex Added!")
+    return redirect(request.url)
 
 def resolve_hexes(res):
     m_x = 9999
@@ -59,22 +64,30 @@ def resolve_hexes(res):
             "resources": e.resources
         })
     return hexes
-    
 
-@main.route('/all-hexes', methods=['GET'])
+@main.route('/update-hex', methods=['POST'])
 @login_required
 @role_required('admin')
-def get_all_hexes():
-    res = db.session.execute(db.select(Hex)).all()
-    return resolve_hexes(res)
+def update_hex_post():
+    hex_data = request.json
+    if (hex_data == None):
+        return "Missing Data", 400
+    
+    h = db.session.execute(db.select(Hex).filter_by(id=hex_data['id'])).first()[0]
 
+    for key, value in hex_data.items():
+        if (value != None):
+            setattr(h, key, value)
+
+    db.session.commit()
+    return "", 200
 
 @main.route('/get-hexes', methods=['GET'])
 @login_required
 def get_personal_hexes():
     res = ''
     if (current_user.role != 'admin'):
-        owned = db.session.execute(db.select(Claim).filter_by(owner=current_user.name)).all()
+        owned = db.session.execute(db.select(Claim).filter_by(owner=current_user.civ_name)).all()
         hexes = []
         for o in owned:
             hexes.append(o[0].hex)
@@ -83,6 +96,48 @@ def get_personal_hexes():
     else:
         res = db.session.execute(db.select(Hex)).all()
         
+    return resolve_hexes(res)
+
+@main.route('/get-civs', methods=['GET'])
+@login_required
+@role_required('admin')
+def get_civs():
+    res = db.session.execute(db.select(User)).all()
+    users = []
+    for u in res:
+        user = u[0]
+        print(user.username)
+        if user.role != 'admin':
+            users.append(user.civ_name)
+    return users
+
+@main.route('/get-claims', methods=['GET'])
+@login_required
+@role_required('admin')
+def get_claims():
+    res = db.session.execute(db.select(Claim)).all()
+    claims = []
+    for c in res:
+        claim = c[0]
+        claims.append({
+            "owner": claim.owner,
+            "hex_id": claim.hex
+        })
+    return claims
+
+@main.route('/get-hexes-for', methods=['GET'])
+@login_required
+@role_required('admin')
+def get_hexes_for():
+    name = request.args.get("civ_name")
+
+    owned = db.session.execute(db.select(Claim).filter_by(owner=name)).all()
+    hexes = []
+    for o in owned:
+        hexes.append(o[0].hex)
+
+    res = db.session.execute(db.select(Hex).filter(Hex.id.in_(hexes))).all()
+
     return resolve_hexes(res)
 
 @main.route('/upload-map', methods=['GET'])

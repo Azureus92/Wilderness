@@ -1,0 +1,9 @@
+#user-table, th, td {
+    width: 100%;
+    border-color: black;
+    border: solid;
+    table-layout : fixed;
+}
+p {
+    margin: 0;
+}

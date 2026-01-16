@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script type="text/javascript" src="{{ url_for('static', filename='stuquery.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='manage-users.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='manage-users.css') }}">
+
+<div class="main-content">
+    <h3 class="title">Manage Existing Users:</h3>
+    <p>Note: Username must be unique between users.</p>
+    <div class="box">
+        <div id="users">
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

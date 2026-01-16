@@ -1,6 +1,6 @@
 .navbar-sec {
 	position: absolute;
-	right: 3%;
+	right: 4%;
 	top: 2%;
 	white-space: nowrap;
 	z-index: 20000;
@@ -9,15 +9,15 @@
 .navbar-item {
 	padding: 1%;
 	margin: auto;
+	border-radius: 0.5em;
 	border: solid;
 	border-color: black; 
-	background-color: white;
+	background-color: #DFB2C6;
 	color: black;
 }
 
 .navbar-item:hover {
-	background-color: rgb(103, 212, 103);
-	color: rgb(255, 255, 255);
+	background-color: #B792A3;
 }
 
 .main-content {
@@ -25,8 +25,9 @@
 	left: 50%;
 	top: 50%;
 	transform: translate(-50%, -50%);
-	background-color: orange;
+	background-color: #DFB2C6;
 	border-radius: 1em;
+	border: solid;
 	padding: 2em;
 	max-width: fit-content;
 	margin-left: auto;
@@ -39,10 +40,55 @@
 	margin:auto;
 }
 
+.input {
+	text-align: center;
+	font-size: 1.5em;
+}
+
+.form-item {
+	max-width: fit-content;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.checkbox {
+	font-size: 1.5em;
+}
+
+.input-checkbox {
+	transform: scale(1.5);
+}
+
+.warning {
+	text-align: center;
+	font-size: 1.5em;
+	color: darkred;
+	margin-top: 0.2em;
+}
+
+.checkbox-label {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: normal;
+}
+
+.notification {
+	font-size: 1.2em;
+	text-align: center;
+	padding: 1em;
+}
+
+.error {
+	background-color: red;
+}
+
 body {
-	background-image: url("images/uploads/Tassie_with_fixed_hexgrid.png");
+	background-image: url("images/ef1.jpg");
 	background-color: #cccccc;
 	background-repeat: no-repeat;
-	background-position: center;
-	background-size: cover;
+	background-size: 100%;
+}
+.fupload {
+	font-size: 1.08em;
+	padding-top: 0.3em;
 }

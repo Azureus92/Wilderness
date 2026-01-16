@@ -5,23 +5,29 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-        <title>Flask Auth Example</title>
+        <title>Wilderness Map</title>
         <script>0</script>
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}" />
     </head>
 
     <body>
         <section class="navbar-sec">
             <nav class="navbar">
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.map') }}" class="navbar-item">
+                    Map
+                </a>
+                {% endif %}
                 {% if current_user.is_authenticated and current_user.role == 'admin' %}
                 <a href="{{ url_for('auth.signup') }}" class="navbar-item">
-                    Sign Up
+                    New User
+                </a>
+                <a href="{{ url_for('auth.manage') }}" class="navbar-item">
+                    Manage Users
                 </a>
                 <a href="{{ url_for('main.register_hex') }}" class="navbar-item">
                     Register a Hex
-                </a>
-                <a href="{{ url_for('main.map') }}" class="navbar-item">
-                    Map
                 </a>
                 <a href="{{ url_for('main.upload_map') }}" class="navbar-item">
                     Upload New Map

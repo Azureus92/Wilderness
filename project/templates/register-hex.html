@@ -6,23 +6,21 @@
     <div class="box">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-            <div class="notification">
+            <div class="notification error">
                 {{ messages[0] }}
             </div>
         {% endif %}
         {% endwith %}
         <form method="POST" action="/register-hex">
-            <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="text" name="player" placeholder="Player to Register:">
-                </div>
+            <div class="form-item">
+                <input class="input" type="text" name="player" placeholder="Player to Register:" required>
             </div>
-            <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="text" name="hex" placeholder="Hex ID:">
-                </div>
+            <div class="form-item">
+                <input class="input" type="text" name="hex" placeholder="Hex ID:" required>
             </div>
-            <button class="button is-block is-info is-large is-fullwidth">Login</button>
+            <div class="form-item">
+                <button class="input">Submit</button>
+            </div>
         </form>
     </div>
 </div>

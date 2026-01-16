@@ -6,32 +6,34 @@
     <h3 class="title">Upload Map</h3>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
-        <div class="notification is-danger">
+        <div class="notification error">
             {{ messages[0] }}
         </div>
     {% endif %}
     {% endwith %}
     <form method="POST" action="/upload-map" enctype=multipart/form-data>
-        <div class="field">
-            <div class="control">
-                <input class="file-cta is-large" type=file name=file accept=".png,.jpg,.jpeg" required>
-            </div>
+
+        <input class="input fupload" type=file name=file accept=".png,.jpg,.jpeg" required>
+        
+        <div class="form-item">
+            <input class="input" type="number" name="width" placeholder="Width (Hexes)" required>
         </div>
-        <div class="field">
-            <div class="control">
-                <input type="number" name="width" required>
-                <label for="width">Width in Hexes:</label>
-                <input type="number" name="height" required>
-                <label for="width">Height in Hexes:</label>
-            </div>
+        <div class="form-item">
+            <input class="input" type="number" name="height" placeholder="Height (Hexes)" required>
         </div>
-        <div class="field">
+        <div class="form-item warning">
+            <span>WARNING: REGEN WILL<br>DELETE ALL DATA.<br>ADMIN USE ONLY.</span>
+        </div>
+        <div class="form-item">
+            
             <label class="checkbox">
-                <input type="checkbox" name="regen">
-                Regenerate Map?
+                <input class="input-checkbox" type="checkbox" name="regen">
+                <span class="checkbox-label">Regenerate Map?</span>
             </label>
         </div>
-        <button class="button is-block is-info is-large is-fullwidth">Submit:</button>
+        <div class="form-item">
+                <button class="input">Submit</button>
+            </div>
     </form>
 </div>
 

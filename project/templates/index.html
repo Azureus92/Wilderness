@@ -7,11 +7,42 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='stuquery.hexmap.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 
-<div id="leftsidebar">
-    <input type="button" id="zoomout" class="button" value="Zoom out">
-    <input type="button" id="zoomin" class="button" value="Zoom in">
-    
+<div id="focus-cover">
+    <div id="hex-indepth-view">
+        <input type="button" class="button-close" id="close-view" value="Close" style="bottom:2%">
+    </div>
 </div>
+
+{% if current_user.is_authenticated and current_user.role != 'admin' %}
+<div id="open-focus" class="focus-button">
+    <button id="open-view" class="button-opener" value="View Civ Info">My Civ Information</button>
+</div>
+{% endif %}
+
+{% if current_user.is_authenticated and current_user.role == 'admin' %}
+<div id="open-admin-tools" class="focus-button">
+    <button id="alt-civ-views" class="button-opener">Alt Civ Views:</button>
+    <div id="other-users" hidden>
+        
+    </div>
+</div>
+<div id="civ-manager">
+    <p class="civ-view">Viewing: </p>
+    <button id="open-view" class="manager button-opener" value="View Civ Info">Civ Information</button>
+    <button id="add-start" class="manager button-opener" value="View Civ Info">Add Hexes</button>
+    <button id="add-confirm" class="manager button-opener half" value="View Civ Info"><img class="icon" src="{{ url_for('static', filename='images/check-solid-full.svg') }}"></button>
+    <button id="add-cancel" class="manager button-opener half" value="View Civ Info"><img class="icon" src="{{ url_for('static', filename='images/x-solid-full.svg') }}"></button>
+    <button id="remove-start" class="manager button-opener" value="View Civ Info">Remove Hexes</button>
+    <button id="remove-confirm" class="manager button-opener half" value="View Civ Info"><img class="icon" src="{{ url_for('static', filename='images/check-solid-full.svg') }}"></button>
+    <button id="remove-cancel" class="manager button-opener half" value="View Civ Info"><img class="icon" src="{{ url_for('static', filename='images/x-solid-full.svg') }}"></button>
+</div>
+{% endif %}
+
+<div id="leftsidebar">
+    <button id="zoomin" class="zoom-button" value="Zoom in"><img class="icon" src="{{ url_for('static', filename='images/magnifying-glass-plus-solid-full.svg') }}"></button>
+    <button id="zoomout" class="zoom-button" value="Zoom in"><img class="icon" src="{{ url_for('static', filename='images/magnifying-glass-minus-solid-full.svg') }}"></button>
+</div>
+
 <figure class="ex-9">
     <div id="hexmap-9" class="mapinterface">
         <div id="hexes">
@@ -20,22 +51,59 @@
     </div>
 </figure>
 <div id="rightsidebar">
-    <div id="hex-details" class="info-display">
-        <div class="title">Hex Information:</div>
-        <div id="hex-name"></div>
-        <div id="hex-type"></div>
-        <div id="hex-desc"></div>
-        <div id="hex-pop"></div>
+    <div id="hex-details" class="info">
+        <div class="hex-title">Hex Information:</div>
+        <div class="hex-info" class="hex-details-display">
+            <b>Biome: </b><p class="hex-text" id="hex-biome"></p>
+            {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                <input type="textarea" class="hex-modify-details" id="hex-biome-i">
+            {% endif %}
+        </div>
+        <div class="hex-info" class="hex-details-display">
+            <b>Features: </b><p class="hex-text" id="hex-features"></p>
+            {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                <input type="textarea" class="hex-modify-details" id="hex-features-i">
+            {% endif %}
+        </div>
+        <div class="hex-info" class="hex-details-display">
+            <b>Flora: </b><p class="hex-text" id="hex-flora"></p>
+            {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                <input type="textarea" class="hex-modify-details" id="hex-flora-i">
+            {% endif %}
+        </div>
+        <div class="hex-info" class="hex-details-display">
+            <b>Fauna: </b><p class="hex-text" id="hex-fauna"></p>
+            {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                <input type="textarea" class="hex-modify-details" id="hex-fauna-i">
+            {% endif %}
+        </div>
+        <div class="hex-info" class="hex-details-display">
+            <b>Resources: </b><p class="hex-text" id="hex-resources"></p>
+            {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                <input type="textarea" class="hex-modify-details" id="hex-resources-i">
+            {% endif %}
+        </div>
+        <div class="hex-info" class="hex-details-display">
+            <b>Developments: </b><p class="hex-text" id="hex-developments"></p>
+            {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                <input type="textarea" class="hex-modify-details" id="hex-developments-i">
+            {% endif %}
+        </div>
+        <div class="hex-info" class="hex-details-display">
+            <b>Additional Notes: </b><p class="hex-text" id="hex-description"></p>
+            {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                <input type="textarea" class="hex-modify-details" id="hex-description-i">
+            {% endif %}
+        </div>
+
+
         {% if current_user.is_authenticated and current_user.role == 'admin' %}
         <input type="button" id="hex-mod" class="button" value="Modify Details">
-        <div id="modifier">
-            <div>New Description: <textarea class="scrollabletextbox" id="hex-desc-new"></textarea></div>
-            <input type="button" id="hex-mod-confirm" value="Confirm Modification">
-        </div>
+        <input type="button" id="hex-mod-confirm" value="Confirm Modification" style="display:none">
         {% endif %}
-        <input type="button" id="close-sidebar" class="button" value="Close" style="bottom:2%">
-
+        
     </div>
+    <input type="button" id="close-sidebar" class="button-close" value="Close">
 </div>
 
 {% endblock %}

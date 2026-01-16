@@ -1,29 +1,118 @@
 body {
 	margin:0;
 }
+#focus-cover {
+	width: 100%;
+	display: none;
+	position: absolute;
+	z-index: 15000;
+	height: 100%;
+	background-color: RGBA(0, 0, 0, 50%);
+}
+#hex-indepth-view {
+	position: absolute;
+	background-color: #fdf4d6;
+	left: 7.5%;
+	top: 7.5%;
+	width: 85%;
+	height: 85%;
+}
+.button-close {
+	position: absolute;
+	right: 1%;
+	top: 1%;
+	height: fit-content;
+	width: fit-content;
+}
 #leftsidebar {
-	width:fit-content;
+	border-radius: 0.5em;
 	z-index: 1000;
 	position: absolute;
-	height:fit-content;
-	background-color: #ffffff;
-	opacity: 0.5;
+	left: 8%;
+	top: 1%;
+}
+.focus-button {
+	z-index: 1000;
+	position: absolute;
+	left: 1%;
+	top: 1%;
+}
+.zoom-button {
+	position: absolute;
+	width: 3em;
+	height: 3em;
+}
+.icon {
+	width: 100%;
+	height: 100%;
+}
+#zoomin {
+	left: 0;
+}
+#zoomout {
+	right: 0;
+}
+.manager {
+	float: left;
+}
+.civ-view {
+	padding: 0.5em;
+	margin: 0;
+}
+.button-opener {
+	height: 3em;
+	width: 6em;
+	display: block;
+}
+.half {
+	width: 3em;
+	display: none;
+}
+#civ-manager {
+	position: absolute;
+	bottom: 2%;
+	background-color: rgba(253, 244, 214, 1);
+	z-index: 1000;
+	border-radius: 0.4em;
+	left: 1%;
 }
 #rightsidebar {
 	width:15%;
 	z-index: 5000;
 	position: absolute;
+	height: fit-content;
+	max-height: 80%;
+	overflow: auto;
 	right: 2%;
 	top: 10%;
 	background-color: rgba(253, 244, 214, 1);
 	display: none;
 }
+.hex-modify-details {
+	display: none;
+}
+
 #modifier {
 	display:none;
 }
-.info-display {
+.info {
 	padding:5%;
 }
+.hex-title {
+	font-size: 2em;
+}
+.hex-info {
+	font-size: 1em;
+	margin: 1em;
+}
+
+p {
+	margin-top: 0;
+}
+.hex-upd-input {
+	display:block;
+}
+
 .ex-9 {
 	user-select: none;
 	font-family: "Times New Roman", serif;
@@ -35,36 +124,6 @@ body {
 	height: 100%;
 	color: #656058;
 	overflow: hidden;
-}
-.compass {
-	z-index: 1000;
-	position: absolute;
-	display: block;
-	padding: 0.06em 0.125em;
-	background-color: rgba(253, 244, 214, .8);
-	font-size: 2em;
-	font-weight: 700;
-	font-family: "Copperplate Gothic Bold", serif;
-}
-.compass-n {
-	left: 50%;
-	top: 0%;
-	transform: translate3D(-50%,-50%,0);
-}
-.compass-s {
-	left: 50%;
-	top: 100%;
-	transform: translate3D(-50%,-50%,0);
-}
-.compass-e {
-	left: 100%;
-	top: 50%;
-	transform: translate3D(-50%,-50%,0);
-}
-.compass-w {
-	left: 0%;
-	top: 50%;
-	transform: translate3D(-50%,-50%,0);
 }
 .ex-9 figcaption {
 	/* margin-top: 2em; */
@@ -115,6 +174,16 @@ body {
 	height: 80px;
 	color: #fdf4d6;
 }
+.hex-image {
+	height: 96px;
+	width: 112px;
+}
+.blinder {
+	position: absolute;
+	opacity: 50%;
+	display: none;
+	transform: translate(0%, -100%);
+}
 #hexmap-9 .hex:hover .hexinner {
 	/* We have created the hexagon via clip-path so we have to simulate
 	a border using two nested elements. We can set the border colour
@@ -154,8 +223,9 @@ body {
 	background-image: linear-gradient(0deg, transparent 50%, rgba(0,0,0,0.15) 50%);
 	background-size: 4% 4%;
 }
-sup { top: -0.2em; }
-.button {
-	width: 100%;
-	height: 50%;
+.blackout {
+	height: 112px;
+	width: 96px;
+	position: absolute;
 }
+sup { top: -0.2em; }
