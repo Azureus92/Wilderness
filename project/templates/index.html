@@ -2,14 +2,96 @@
 
 {% block content %}
 <script type="text/javascript" src="{{ url_for('static', filename='stuquery.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='jquery-3.7.1.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='stuquery.hexmap.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='stuquery.hexmap.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 
-<div id="focus-cover">
-    <div id="hex-indepth-view">
-        <input type="button" class="button-close" id="close-view" value="Close" style="bottom:2%">
+<div id="focus-cover" hidden>
+    <input type="button" class="button-close outside" id="close-view" value="Close" style="bottom:2%">
+    <div id="hex-indepth-view">        
+        <div id="hex-stats" class="civ-info-panel top left" >
+            <canvas id="hex-stats-pentagon"></canvas>
+            <div id="hex-stats-list">
+                <div class="panel-title"><b>Stats:</b></div>
+                <div id="stats-info-display">
+                    <div class="info-modifiable">
+                        <b>Wood: </b><p class="inline" id="stats-wood"></p><br>
+                        Expansion, Exploration, Growth. <p class="inline" id="stats-total-wood"></p> points.
+                    </div>
+                    <div class="info-modifiable">
+                        <b>Fire: </b><p class="inline" id="stats-fire"></p><br>
+                        Passion, Fervor, Nationalism. <p class="inline" id="stats-total-fire"></p> points.
+                    </div>
+                    <div class="info-modifiable">
+                        <b>Earth: </b><p class="inline" id="stats-earth"></p><br>
+                        Stability, Governing, Planning. <p class="inline" id="stats-total-earth"></p> points.
+                    </div>
+                    <div class="info-modifiable">
+                        <b>Metal: </b><p class="inline" id="stats-metal"></p><br>
+                        Discipline, Authority, Defense. <p class="inline" id="stats-total-metal"></p> points.
+                    </div>
+                    <div class="info-modifiable">
+                        <b>Water: </b><p class="inline" id="stats-water"></p><br>
+                        Reflection, Wisdom, Flexibility. <p class="inline" id="stats-total-water"></p> points.
+                    </div>
+                </div>
+                {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                <button id="modify-stats-start" class="manager button-opener">Modify Stats:</button>
+                <button id="modify-stats-confirm" class="manager button-opener half"><img class="icon" src="{{ url_for('static', filename='images/check-solid-full.svg') }}"></button>
+                <button id="modify-stats-cancel" class="manager button-opener half"><img class="icon" src="{{ url_for('static', filename='images/x-solid-full.svg') }}"></button>
+                {% endif %}
+            </div>
+        </div>
+        <div class="civ-info-panel top right">
+            <div class="info-display">
+                <div class="panel-title"><b>Key Information:</b></div>
+                {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                    <div class="buttons">
+                        <button id="edit-ability-start" class="ico-button">Edit Abilities</button>
+                        <button id="edit-ability-confirm" class="ico-button" hidden>Confirm</button>
+                        <button id="new-ability" class="ico-button">New Ability</button>
+                    </div>
+                {% endif %}
+                <div id="ability-table" class="display-table">
+
+                </div>
+            </div>
+        </div>
+        <div class="civ-info-panel bottom left">
+            <div class="info-display">
+                <div class="panel-title"><b>Techs:</b></div>
+                {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                    <div class="buttons">
+                        <button id="edit-tech-start" class="ico-button">Edit Techs</button>
+                        <button id="edit-tech-confirm" class="ico-button" hidden>Confirm</button>
+                        <button id="new-tech" class="ico-button">New Tech</button>
+                    </div>
+                {% endif %}
+                <div id="tech-table" class="display-table">
+                    
+                </div>
+            </div>
+        </div>
+        <div class="civ-info-panel bottom right">
+            <div class="info-display">
+                <div class="panel-title"><b>Demographics:</b></div>
+                {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                    <div class="buttons">
+                        <input class="ico-button" id="demographics-file-upload" type=file name=file accept=".png,.jpg,.jpeg" required>
+                        <button id="new-demographics" class="ico-button">Replace Demographics</button>
+                    </div>
+                {% endif %}
+                <div id="demographics-table" class="display-table">
+                    
+                </div>
+                
+            </div>
+        </div>
+        <div class="civ-info-title middle">
+            <b id="civ-title"></b>
+        </div>
     </div>
 </div>
 
@@ -27,7 +109,7 @@
     </div>
 </div>
 <div id="civ-manager">
-    <p class="civ-view">Viewing: </p>
+    <p id="civ-view">Viewing: </p>
     <button id="open-view" class="manager button-opener" value="View Civ Info">Civ Information</button>
     <button id="add-start" class="manager button-opener" value="View Civ Info">Add Hexes</button>
     <button id="add-confirm" class="manager button-opener half" value="View Civ Info"><img class="icon" src="{{ url_for('static', filename='images/check-solid-full.svg') }}"></button>
@@ -52,48 +134,27 @@
 </figure>
 <div id="rightsidebar">
     <div id="hex-details" class="info">
-        <div class="hex-title">Hex Information:</div>
-        <div class="hex-info" class="hex-details-display">
-            <b>Biome: </b><p class="hex-text" id="hex-biome"></p>
-            {% if current_user.is_authenticated and current_user.role == 'admin' %}
-                <input type="textarea" class="hex-modify-details" id="hex-biome-i">
-            {% endif %}
+        <div class="panel-title">Hex Information:</div>
+        <div class="info-modifiable">
+            <b>Biome: </b><pre id="hex-biome"></pre>
         </div>
-        <div class="hex-info" class="hex-details-display">
-            <b>Features: </b><p class="hex-text" id="hex-features"></p>
-            {% if current_user.is_authenticated and current_user.role == 'admin' %}
-                <input type="textarea" class="hex-modify-details" id="hex-features-i">
-            {% endif %}
+        <div class="info-modifiable">
+            <b>Features: </b><pre id="hex-features"></pre>
         </div>
-        <div class="hex-info" class="hex-details-display">
-            <b>Flora: </b><p class="hex-text" id="hex-flora"></p>
-            {% if current_user.is_authenticated and current_user.role == 'admin' %}
-                <input type="textarea" class="hex-modify-details" id="hex-flora-i">
-            {% endif %}
+        <div class="info-modifiable" >
+            <b>Flora: </b><pre id="hex-flora"></pre>
         </div>
-        <div class="hex-info" class="hex-details-display">
-            <b>Fauna: </b><p class="hex-text" id="hex-fauna"></p>
-            {% if current_user.is_authenticated and current_user.role == 'admin' %}
-                <input type="textarea" class="hex-modify-details" id="hex-fauna-i">
-            {% endif %}
+        <div class="info-modifiable" >
+            <b>Fauna: </b><pre id="hex-fauna"></pre>
         </div>
-        <div class="hex-info" class="hex-details-display">
-            <b>Resources: </b><p class="hex-text" id="hex-resources"></p>
-            {% if current_user.is_authenticated and current_user.role == 'admin' %}
-                <input type="textarea" class="hex-modify-details" id="hex-resources-i">
-            {% endif %}
+        <div class="info-modifiable" >
+            <b>Resources: </b><pre id="hex-resources"></pre>
         </div>
-        <div class="hex-info" class="hex-details-display">
-            <b>Developments: </b><p class="hex-text" id="hex-developments"></p>
-            {% if current_user.is_authenticated and current_user.role == 'admin' %}
-                <input type="textarea" class="hex-modify-details" id="hex-developments-i">
-            {% endif %}
+        <div class="info-modifiable" >
+            <b>Developments: </b><pre id="hex-developments"></pre>
         </div>
-        <div class="hex-info" class="hex-details-display">
-            <b>Additional Notes: </b><p class="hex-text" id="hex-description"></p>
-            {% if current_user.is_authenticated and current_user.role == 'admin' %}
-                <input type="textarea" class="hex-modify-details" id="hex-description-i">
-            {% endif %}
+        <div class="info-modifiable" >
+            <b>Additional Notes: </b><pre  id="hex-description"></pre>
         </div>
 
 

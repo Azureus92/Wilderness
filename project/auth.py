@@ -1,16 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import User, role_required
+from .models import User, role_required, Civ, Settlement, Claim
 from . import db
 
 auth = Blueprint('auth', __name__)
-
-# @auth.route("/create_admin", methods=['GET'])
-# def ca():
-#     new_user = User(username="admin", civ_name="Azure", password=generate_password_hash("Wilderness_Admin_92"), role="admin")
-#     db.session.add(new_user)
-#     db.session.commit()
 
 @auth.route('/login')
 def login():
@@ -21,9 +15,6 @@ def login_post():
     username = request.form.get('username')
     password = request.form.get('password')
     remember = True if request.form.get('remember') else False
-
-    for e in db.session.execute(db.select(User)).all():
-        print(e[0].username)
 
     user = db.session.execute(db.select(User).filter_by(username=username)).first()
 
@@ -69,6 +60,7 @@ def signup_post():
 
     # add the new user to the database
     db.session.add(new_user)
+    db.session.add(Civ(owner=civ_name))
     db.session.commit()
 
     return redirect(url_for('auth.login'))
@@ -127,7 +119,12 @@ def manage_modify_post():
 @role_required('admin')
 def manage_delete_post():
     user_data = request.json
+    civ = db.session.execute(db.select(User).filter_by(id=user_data['id'])).first()[0].civ_name
+    db.session.execute(db.delete(Civ).filter_by(owner=civ))
+    db.session.execute(db.delete(Claim).filter_by(owner=civ))
+    db.session.execute(db.delete(Settlement).filter_by(owner=civ))
     db.session.execute(db.delete(User).filter_by(id=user_data['id']))
+
     db.session.commit()
 
     return "", 200

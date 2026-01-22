@@ -1,11 +1,10 @@
-from flask import Flask, Blueprint, flash, request, redirect, url_for
+from flask import Blueprint, flash, request, redirect, url_for
 from flask import render_template
 from werkzeug.utils import secure_filename
-import sqlite3
 from .hex_mangler import mangle
-from flask_login import LoginManager, login_required, current_user
+from flask_login import login_required, current_user
 from . import UPLOAD_FOLDER, db
-from .models import Hex, role_required, Claim, User
+from .models import Hex, role_required, Claim, User, Civ, Tech, Ability
 
 main = Blueprint('main', __name__)
 
@@ -34,7 +33,6 @@ def register_hex_post():
     player = request.form.get("player")
     hex_id = request.form.get("hex")
     
-
     db.session.add(Claim(owner=player, hex=hex_id))
     db.session.commit()
 
@@ -53,8 +51,8 @@ def resolve_hexes(res):
         e = entry[0]
         hexes.append({
             "id": e.id, 
-            "x": e.x - m_x, 
-            "y": e.y - m_y, 
+            "x": e.x, 
+            "y": e.y, 
             "description": e.description,
             "biome": e.biome,
             "features": e.features,
@@ -82,12 +80,30 @@ def update_hex_post():
     db.session.commit()
     return "", 200
 
+@main.route('/update-stats', methods=['POST'])
+@login_required
+@role_required('admin')
+def update_stats_post():
+    stats_data = request.json
+    if (stats_data == None):
+        return "Missing Data", 400
+    
+    h = db.session.execute(db.select(Civ).filter_by(owner=(stats_data['owner']))).first()[0]
+
+    for key, value in stats_data.items():
+        if (key != "owner" and value != None):
+            setattr(h, key, value)
+
+    db.session.commit()
+    return "", 200
+
 @main.route('/get-hexes', methods=['GET'])
 @login_required
 def get_personal_hexes():
     res = ''
     if (current_user.role != 'admin'):
         owned = db.session.execute(db.select(Claim).filter_by(owner=current_user.civ_name)).all()
+
         hexes = []
         for o in owned:
             hexes.append(o[0].hex)
@@ -98,6 +114,114 @@ def get_personal_hexes():
         
     return resolve_hexes(res)
 
+@main.route('/get-techs', methods=['GET'])
+@login_required
+def get_techs():
+    res = []
+    if request.args.get("civ") == None:
+        return "", 400
+    if (current_user.civ_name == request.args.get("civ") or current_user.role == "admin"): 
+        res = db.session.execute(db.select(Tech).filter_by(owner=request.args.get("civ"))).all()
+    else:
+        return "", 401
+
+    if (res == None):
+        return []
+
+    techs = []
+    for t in res:
+        tech = t[0]
+        techs.append({
+            "id": tech.id,
+            "tech": tech.name,
+            "desc": tech.description
+        })
+    return techs
+
+@main.route('/get-abilities', methods=['GET'])
+@login_required
+def get_abilities():
+    res = []
+    if request.args.get("civ") == None:
+        return "", 400
+    if (current_user.civ_name == request.args.get("civ") or current_user.role == "admin"): 
+        res = db.session.execute(db.select(Ability).filter_by(owner=request.args.get("civ"))).all()
+    else:
+        return "", 401
+    if (res == None):
+        return []
+
+    abilities = []
+    for a in res:
+        ability = a[0]
+        abilities.append({
+            "id": ability.id,
+            "tech": ability.name,
+            "desc": ability.description
+        })
+    return abilities
+
+@main.route('/get-stats', methods=['GET'])
+@login_required
+def get_stats():
+    res = []
+    if request.args.get("civ") == None:
+        return "", 400
+    if ((current_user.civ_name == request.args.get("civ") or current_user.role == "admin")): 
+        res = db.session.execute(db.select(Civ).filter_by(owner=request.args.get("civ"))).first()
+    else:
+        return "", 401
+
+    stats = {
+        "earth": res[0].earth,
+        "metal": res[0].metal,
+        "wood": res[0].wood,
+        "water": res[0].water,
+        "fire": res[0].fire,
+        "earth_total": res[0].earth_total,
+        "metal_total": res[0].metal_total,
+        "wood_total": res[0].wood_total,
+        "water_total": res[0].water_total,
+        "fire_total": res[0].fire_total
+    }
+    return stats
+
+from io import BytesIO
+from flask import send_file
+@main.route('/get-demographics', methods=['GET'])
+@login_required
+def get_demographics():
+    res = []
+    if request.args.get("civ") == None:
+        return "", 400
+    if ((current_user.civ_name == request.args.get("civ") or current_user.role == "admin")): 
+        res = db.session.execute(db.select(Civ).filter_by(owner=request.args.get("civ"))).first()
+    else:
+        return "", 401
+
+    return send_file(
+        BytesIO(res[0].demographics),
+        download_name='demographics.png',
+        mimetype='image/png'
+    )
+
+
+@main.route('/create-demographic', methods=['POST'])
+@login_required
+def create_demographics():
+    res = []
+    if request.args.get("civ") == None:
+        return "", 400
+    if ((current_user.civ_name == request.args.get("civ") or current_user.role == "admin")): 
+        res = db.session.execute(db.select(Civ).filter_by(owner=request.args.get("civ"))).first()
+    else:
+        return "", 401
+    
+    res[0].demographics = request.data
+    db.session.commit()
+
+    return "", 200
+
 @main.route('/get-civs', methods=['GET'])
 @login_required
 @role_required('admin')
@@ -106,7 +230,6 @@ def get_civs():
     users = []
     for u in res:
         user = u[0]
-        print(user.username)
         if user.role != 'admin':
             users.append(user.civ_name)
     return users
@@ -124,6 +247,144 @@ def get_claims():
             "hex_id": claim.hex
         })
     return claims
+
+@main.route('/get-active-civs', methods=['GET'])
+@login_required
+def get_active_Civs():
+    res = []
+    if (current_user.role == "admin"): 
+        res = db.session.execute(db.select(Civ)).all()
+    else:
+        res = db.session.execute(db.select(Civ).filter_by(owner=current_user.civ_name))
+
+    civ_stats = []
+    for s in res:
+        stat = s[0]
+        civ_stats.append({
+            "owner": stat.owner
+        })
+    return civ_stats
+
+@main.route('/register-hexes', methods=['POST'])
+@login_required
+@role_required('admin')
+def register_hexes():
+    data = request.json
+    player = data['register-to']
+    hexes = data['hex-ids']
+    
+    for h in hexes:
+        if (db.session.execute(db.select(Claim).filter_by(owner=player, hex=h)).first() == None):
+            db.session.add(Claim(owner=player, hex=h))
+    db.session.commit()
+
+    return "", 200
+
+@main.route('/deregister-hexes', methods=['POST'])
+@login_required
+@role_required('admin')
+def deregister_hexes():
+    data = request.json
+    player = data['delete-from']
+    hexes = data['hex-ids']
+    
+    for h in hexes:
+        db.session.execute(db.delete(Claim).filter_by(owner=player, hex=h))
+    db.session.commit()
+
+    return "", 200
+
+@main.route('/delete-tech', methods=['POST'])
+@login_required
+@role_required('admin')
+def delete_tech():
+    data = request.json
+    id = data['id']
+
+    db.session.execute(db.delete(Tech).filter_by(id=id))
+    db.session.commit()
+
+    return "", 200
+
+@main.route('/create-tech', methods=['POST'])
+@login_required
+@role_required('admin')
+def create_tech():
+    data = request.json
+    player = data['player']
+    name = data['name']
+    desc = data['description']
+    
+    db.session.add(Tech(owner=player, name=name, description=desc))
+    db.session.commit()
+
+    return "", 200
+
+@main.route('/update-techs', methods=['POST'])
+@login_required
+@role_required('admin')
+def modify_tech():
+    data = request.json
+    to_update = data['update']
+    for upd in to_update:
+        id = upd['id']
+        name = upd['name']
+        desc = upd['description']
+
+        tech = db.session.execute(db.select(Tech).filter_by(id=id)).first()[0]
+        if (name != None):
+            setattr(tech, "name", name)
+        if (desc != None):
+            setattr(tech, "description", desc)
+        db.session.commit()
+
+    return "", 200
+
+@main.route('/delete-ability', methods=['POST'])
+@login_required
+@role_required('admin')
+def delete_ability():
+    data = request.json
+    id = data['id']
+    
+    db.session.execute(db.delete(Ability).filter_by(id=id))
+    db.session.commit()
+
+    return "", 200
+
+@main.route('/create-ability', methods=['POST'])
+@login_required
+@role_required('admin')
+def create_ability():
+    data = request.json
+    player = data['player']
+    name = data['name']
+    desc = data['description']
+    
+    db.session.add(Ability(owner=player, name=name, description=desc))
+    db.session.commit()
+
+    return "", 200
+
+@main.route('/update-abilities', methods=['POST'])
+@login_required
+@role_required('admin')
+def update_abilities():
+    data = request.json
+    to_update = data['update']
+    for upd in to_update:
+        id = upd['id']
+        name = upd['name']
+        desc = upd['description']
+
+        ability = db.session.execute(db.select(Ability).filter_by(id=id)).first()[0]
+        if (name != None):
+            setattr(ability, "name", name)
+        if (desc != None):
+            setattr(ability, "description", desc)
+        db.session.commit()
+
+    return "", 200
 
 @main.route('/get-hexes-for', methods=['GET'])
 @login_required
@@ -154,7 +415,6 @@ def upload_map_post():
     w = request.form.get("width")
     h = request.form.get("height")
     r = request.form.get("regen")
-    print(request.files)
 
     if 'file' not in request.files:
         flash('No file part')

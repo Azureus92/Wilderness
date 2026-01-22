@@ -3,7 +3,7 @@ body {
 }
 #focus-cover {
 	width: 100%;
-	display: none;
+	/* display: none; */
 	position: absolute;
 	z-index: 15000;
 	height: 100%;
@@ -16,9 +16,14 @@ body {
 	top: 7.5%;
 	width: 85%;
 	height: 85%;
+	border-radius: 0.5em;
+}
+.civ-stat-display {
+	display: block;
 }
 .button-close {
 	position: absolute;
+	z-index: 1000;
 	right: 1%;
 	top: 1%;
 	height: fit-content;
@@ -55,7 +60,7 @@ body {
 .manager {
 	float: left;
 }
-.civ-view {
+#civ-view {
 	padding: 0.5em;
 	margin: 0;
 }
@@ -70,6 +75,7 @@ body {
 }
 #civ-manager {
 	position: absolute;
+	display: none;
 	bottom: 2%;
 	background-color: rgba(253, 244, 214, 1);
 	z-index: 1000;
@@ -91,21 +97,30 @@ body {
 .hex-modify-details {
 	display: none;
 }
-
+.display-table {
+	height: 88%;
+	border: solid;
+	border-width: 0.2em;
+	overflow-y: scroll;
+	box-sizing: border-box;
+}
 #modifier {
 	display:none;
 }
 .info {
 	padding:5%;
 }
-.hex-title {
-	font-size: 2em;
+.panel-title {
+	height: 10%;
+	font-size: 1.5em;
 }
-.hex-info {
+.info-modifiable {
 	font-size: 1em;
-	margin: 1em;
+	margin: 0.5em;
 }
-
+.ico-button {
+	height: 95%;
+}
 p {
 	margin-top: 0;
 }
@@ -137,10 +152,15 @@ p {
 	/* overflow: scroll; */
 	display: inline-block;
 }
+.scrollable {
+	overflow: scroll;
+}
 .comp {
 	z-index: 4000;
 }
-
+.inline {
+	display: inline;
+}
 #hexmap-9 .hex {
 	background-color: #000000;
 	font-family: "Arial Black","Copperplate Gothic Bold","Times New Roman", serif;
@@ -167,6 +187,10 @@ p {
 	font-size: 1.6em;
 	line-height: 1.25em;
 }
+.hex-image {
+	height: 96px;
+	width: 112px;
+}
 .focusedhex {
 	background: black;
 	margin:auto;
@@ -174,9 +198,58 @@ p {
 	height: 80px;
 	color: #fdf4d6;
 }
-.hex-image {
-	height: 96px;
-	width: 112px;
+#hex-stats-pentagon {
+	border-right: solid;	
+}
+#hex-stats-list {
+	padding: 0.5em;
+}
+.info-display {
+	padding: 1%;
+	box-sizing: border-box;
+	overflow: hidden;
+	height: 100%;
+}
+#hex-stats {
+	display: flex;
+}
+.civ-stat-label {
+	position: absolute;
+}
+/* .corner-1 {
+} */
+.civ-info-panel {
+	height: 50%;
+	width: 50%;
+	background-color: rgba(253, 244, 214, 1);
+	position: absolute;
+	border: solid;
+	border-width: 0.1em;
+	box-sizing: border-box;
+}
+.civ-info-title {
+	font-size: 2em;
+	background-color: rgba(253, 244, 214, 1);
+	position: absolute;
+	border: solid;
+	border-width: 0.1em;
+	box-sizing: border-box;
+	border-radius: 0.25em;
+	top: 0;
+	left: 50%;
+	transform: translate(-50%, -100%);
+}
+.top {
+	top: 0;
+}
+.bottom {
+	bottom: 0;
+}
+.left {
+	left: 0;
+}
+.right {
+	right: 0;
 }
 .blinder {
 	position: absolute;
@@ -229,3 +302,47 @@ p {
 	position: absolute;
 }
 sup { top: -0.2em; }
+
+#user-table {
+	width: 100%;
+	table-layout: fixed;
+}
+th, td {
+    width: 100%;
+    border-color: black;
+    border: solid;
+	box-sizing: border-box;
+}
+p {
+    margin: 0;
+}
+.buttons {
+	position: absolute;
+	height: 8%;
+	right: 1%;
+	top: 2.5%;
+}
+.create-textarea {
+	height: 3em;
+	margin-right: 0.5em;
+	padding: 0;
+	box-sizing: border-box;
+}
+.outside {
+	right: 5%;
+	top: 7.5%;
+}
+.button-delete {
+	float: right;
+	display: inline;
+	height: 2em;
+}
+.description {
+	display: inline;
+}
+.table-image {
+	width: 100%;
+}
+.table-entry {
+	padding: 0.5em;
+}

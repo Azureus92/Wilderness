@@ -3,13 +3,14 @@ import os
 import glob
 import random
 from . import db, HEX_FOLDER
-from .models import Hex
+from .models import Hex, Claim, Settlement
 
 def mangle(i, hc_width, hc_height, remake):
     ids = []
     if (remake != None):
-        print("REGENNING MAP!")
         Hex.query.delete()
+        Claim.query.delete()
+        Settlement.query.delete()
         db.session.commit()
         ids = random.sample(range(hc_width * hc_height), hc_width * hc_height)
     else:
