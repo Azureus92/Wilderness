@@ -198,17 +198,24 @@ def get_demographics():
         res = db.session.execute(db.select(Civ).filter_by(owner=request.args.get("civ"))).first()
     else:
         return "", 401
+    
+    test = []
+    for row in res[0].demographics.split("\n")[0:-1]:
+        temp = []
+        for col in row.split("|")[0:-1]:
+            temp.append(col)
+        test.append(temp)
 
-    return send_file(
-        BytesIO(res[0].demographics),
-        download_name='demographics.png',
-        mimetype='image/png'
-    )
+    print(test)
+
+    return test, 200
 
 
-@main.route('/create-demographic', methods=['POST'])
+@main.route('/update-demographics', methods=['POST'])
 @login_required
-def create_demographics():
+@role_required('admin')
+def update_demographics():
+    d = request.json
     res = []
     if request.args.get("civ") == None:
         return "", 400
@@ -217,7 +224,15 @@ def create_demographics():
     else:
         return "", 401
     
-    res[0].demographics = request.data
+    demo = ""
+    for row in d["demographics"]:
+        for val in row:
+            demo += val + "|"
+        demo += "\n"
+
+    print(demo)
+
+    res[0].demographics = demo
     db.session.commit()
 
     return "", 200

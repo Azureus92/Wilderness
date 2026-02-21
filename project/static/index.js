@@ -1,6 +1,9 @@
 var hex_data = [];
 var focused_civ_stats = [];
-var focused_civ_demographics = [];
+var focused_civ_demographics = [["", "bur", "bruh"],
+["bruh", "bur", "bruh"],
+["bruh", "bur", "bruh"]
+];
 var focused_civ_abilities = [];
 var focused_civ_techs = [];
 var users = [];
@@ -337,7 +340,7 @@ async function getAbilities() {
   if (document.getElementById("alt-civ-views") != null) {
     for (const ability of focused_civ_abilities) {
       document.getElementById("delete-ability-" + ability.id).addEventListener('click', async function() {
-        await fetch('delete-ability', {
+        await fetch('delete-ability?civ=', {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -351,16 +354,51 @@ async function getAbilities() {
   }
 }
 
+async function DisplayDemographics() {
+  var table = document.getElementById("demographics-table");
+  while (table.rows.length > 0) {
+    table.deleteRow(0);
+  }
+  for (const row of focused_civ_demographics) {
+    var r = table.insertRow();
+    for (const data of row) {
+      r.insertCell().innerText = data;
+    } 
+  }
+}
+
+async function UpdateDemographics() {
+  table = document.getElementById("demographics-table")
+  var to_upd = [];
+  for (const row of table.rows) {
+    var temp = [];
+    for (const el of row.cells) {
+      temp.push(el.textContent);
+    }
+    to_upd.push(temp);
+  }
+
+  await fetch("update-demographics?civ="+activePlayer, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({"demographics": to_upd})
+  });
+}
+
 async function getDemographics() {
   await fetch("/get-demographics?civ="+activePlayer)
   .then((response) => {
       if (!response.ok) {
           throw new Error(`HTTP error ${response.status}`);
       }
-      return response.blob();
+      return response.json();
   })
   .then((data) => {
-    S("#demographics-table").html(`<img class="table-image" src="` + URL.createObjectURL(data) + `">`)
+    focused_civ_demographics = data;
+    console.log(focused_civ_demographics)
   })
 }
 
@@ -381,7 +419,7 @@ async function DisplayChosenCivInfo() {
   ConditionalDisplay(focused_civ_stats.metal_total, "stats-total-metal")
   ConditionalDisplay(focused_civ_stats.water_total, "stats-total-water")
 
-  
+  DisplayDemographics();
   drawPenta();
 }
 
@@ -807,20 +845,67 @@ S(document).ready(async function(){
 
       await getTechs()
     });
-    document.getElementById("new-demographics").addEventListener('click', async function () {
-      var f = document.getElementById("demographics-file-upload").files[0]
-      if (f != undefined) {
-        await fetch('create-demographic?civ='+ activePlayer, {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: f
-        });
-        getDemographics();
+    document.getElementById("modify-demographics").addEventListener('click', async function () {
+      table = document.getElementById("demographics-table");
+      for (const row of table.rows) {
+        for (const el of row.cells) {
+          el.contentEditable = 'true';
+        }
       }
+      document.getElementById("modify-demographics").style.display = 'none';
+      document.getElementById("modify-demographics-confirm").style.display = 'inline';
+      document.getElementById("new-row-demographics").style.display = 'inline';
+      document.getElementById("new-col-demographics").style.display = 'inline';
     });
+    document.getElementById("modify-demographics-confirm").addEventListener('click', async function () {
+      document.getElementById("modify-demographics").style.display = 'inline'
+      document.getElementById("modify-demographics-confirm").style.display = 'none'
+      document.getElementById("new-row-demographics").style.display = 'none';
+      document.getElementById("new-col-demographics").style.display = 'none';
+
+      table = document.getElementById("demographics-table")
+      for (const row of table.rows) {
+        for (const el of row.cells) {
+          el.contentEditable = 'false';
+        }
+      }
+
+      await UpdateDemographics();
+      await getDemographics();
+      await DisplayDemographics();
+    });
+    
+    document.getElementById("new-row-demographics").addEventListener('click', async function () {
+      document.getElementById("modify-demographics").style.display = 'inline'
+      document.getElementById("modify-demographics-confirm").style.display = 'none'
+      document.getElementById("new-row-demographics").style.display = 'none';
+      document.getElementById("new-col-demographics").style.display = 'none';
+      table = document.getElementById("demographics-table")
+      const r = table.insertRow();
+      for (var i = 0; i < table.rows[0].cells.length; i++) {
+        r.insertCell().innerText = "<no data>"
+      }
+
+      await UpdateDemographics();
+      await getDemographics();
+      await DisplayDemographics();
+    });
+
+    document.getElementById("new-col-demographics").addEventListener('click', async function () {
+      document.getElementById("modify-demographics").style.display = 'inline'
+      document.getElementById("modify-demographics-confirm").style.display = 'none'
+      document.getElementById("new-row-demographics").style.display = 'none';
+      document.getElementById("new-col-demographics").style.display = 'none';
+      table = document.getElementById("demographics-table")
+      for (const r of table.rows) {
+        r.insertCell().innerText = "<no data>";
+      }
+
+      await UpdateDemographics();
+      await getDemographics();
+      await DisplayDemographics();
+    });
+    
     document.getElementById("edit-ability-start").addEventListener('click', function() {
       document.getElementById("edit-ability-start").style.display = 'none';
       document.getElementById("edit-ability-confirm").style.display = 'inline';

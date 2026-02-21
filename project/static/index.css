@@ -307,8 +307,12 @@ sup { top: -0.2em; }
 	width: 100%;
 	table-layout: fixed;
 }
+table {
+	table-layout: fixed;
+	width: 100%;
+}
 th, td {
-    width: 100%;
+    
     border-color: black;
     border: solid;
 	box-sizing: border-box;

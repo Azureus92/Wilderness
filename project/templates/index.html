@@ -79,12 +79,16 @@
                 <div class="panel-title"><b>Demographics:</b></div>
                 {% if current_user.is_authenticated and current_user.role == 'admin' %}
                     <div class="buttons">
-                        <input class="ico-button" id="demographics-file-upload" type=file name=file accept=".png,.jpg,.jpeg" required>
-                        <button id="new-demographics" class="ico-button">Replace Demographics</button>
+                        <button id="new-row-demographics" class="ico-button" hidden>New Row</button>
+                        <button id="new-col-demographics" class="ico-button" hidden>New Column</button>
+                        <button id="modify-demographics" class="ico-button">Modify Demographics</button>
+                        <button id="modify-demographics-confirm" class="ico-button" hidden>Confirm</button>
                     </div>
                 {% endif %}
-                <div id="demographics-table" class="display-table">
-                    
+                <div class="display-table">
+                    <table id="demographics-table">
+
+                    </table>
                 </div>
                 
             </div>
