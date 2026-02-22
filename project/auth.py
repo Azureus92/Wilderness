@@ -34,14 +34,14 @@ def login_post():
     return redirect(url_for('main.map'))
 
 @auth.route('/signup')
-# @login_required
-# @role_required('admin')
+@login_required
+@role_required('admin')
 def signup():
     return render_template('signup.html')
 
 @auth.route('/signup', methods=['POST'])
-# @login_required
-# @role_required('admin')
+@login_required
+@role_required('admin')
 def signup_post():
     # code to validate and add user to database goes here
     username = request.form.get('username')
