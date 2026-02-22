@@ -198,15 +198,16 @@ def get_demographics():
         res = db.session.execute(db.select(Civ).filter_by(owner=request.args.get("civ"))).first()
     else:
         return "", 401
-    
+
+    if (res[0].demographics  == None): 
+        return [], 200
+
     test = []
     for row in res[0].demographics.split("\n")[0:-1]:
         temp = []
         for col in row.split("|")[0:-1]:
             temp.append(col)
         test.append(temp)
-
-    print(test)
 
     return test, 200
 
@@ -229,8 +230,6 @@ def update_demographics():
         for val in row:
             demo += val + "|"
         demo += "\n"
-
-    print(demo)
 
     res[0].demographics = demo
     db.session.commit()

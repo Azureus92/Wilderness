@@ -398,7 +398,6 @@ async function getDemographics() {
   })
   .then((data) => {
     focused_civ_demographics = data;
-    console.log(focused_civ_demographics)
   })
 }
 
@@ -856,19 +855,39 @@ S(document).ready(async function(){
       document.getElementById("modify-demographics-confirm").style.display = 'inline';
       document.getElementById("new-row-demographics").style.display = 'inline';
       document.getElementById("new-col-demographics").style.display = 'inline';
+      document.getElementById("delete-row-demographics").style.display = 'inline';
+      document.getElementById("delete-col-demographics").style.display = 'inline';
     });
     document.getElementById("modify-demographics-confirm").addEventListener('click', async function () {
       document.getElementById("modify-demographics").style.display = 'inline'
       document.getElementById("modify-demographics-confirm").style.display = 'none'
       document.getElementById("new-row-demographics").style.display = 'none';
       document.getElementById("new-col-demographics").style.display = 'none';
-
+      document.getElementById("delete-row-demographics").style.display = 'none';
+      document.getElementById("delete-col-demographics").style.display = 'none';
       table = document.getElementById("demographics-table")
+      
       for (const row of table.rows) {
         for (const el of row.cells) {
           el.contentEditable = 'false';
         }
       }
+
+      var row = document.getElementById("delete-row-demographics").value;
+      var col = document.getElementById("delete-col-demographics").value;
+
+      if (row != "" && row < table.rows.length + 1 && row > 0) {
+        table.deleteRow(row - 1);
+      } 
+
+      if (col != "" && table.rows.length > 0 && col < table.rows[0].cells.length + 1 && col > 0) {
+        for (const r of table.rows) {
+          r.deleteCell(col - 1);
+        }
+      } 
+
+      document.getElementById("delete-row-demographics").value = "";
+      document.getElementById("delete-col-demographics").value = "";
 
       await UpdateDemographics();
       await getDemographics();
@@ -880,9 +899,14 @@ S(document).ready(async function(){
       document.getElementById("modify-demographics-confirm").style.display = 'none'
       document.getElementById("new-row-demographics").style.display = 'none';
       document.getElementById("new-col-demographics").style.display = 'none';
+      document.getElementById("delete-row-demographics").style.display = 'none';
+      document.getElementById("delete-col-demographics").style.display = 'none';
       table = document.getElementById("demographics-table")
       const r = table.insertRow();
       for (var i = 0; i < table.rows[0].cells.length; i++) {
+        r.insertCell().innerText = "<no data>"
+      }
+      if (r.cells.length < 1) {
         r.insertCell().innerText = "<no data>"
       }
 
@@ -896,7 +920,12 @@ S(document).ready(async function(){
       document.getElementById("modify-demographics-confirm").style.display = 'none'
       document.getElementById("new-row-demographics").style.display = 'none';
       document.getElementById("new-col-demographics").style.display = 'none';
+      document.getElementById("delete-row-demographics").style.display = 'none';
+      document.getElementById("delete-col-demographics").style.display = 'none';
       table = document.getElementById("demographics-table")
+      if (table.rows.length < 1) {
+        table.insertRow();
+      }
       for (const r of table.rows) {
         r.insertCell().innerText = "<no data>";
       }
